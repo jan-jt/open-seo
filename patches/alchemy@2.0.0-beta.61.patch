@@ -1,0 +1,112 @@
+diff --git a/lib/Cloudflare/Workers/WorkerProvider.js b/lib/Cloudflare/Workers/WorkerProvider.js
+index 5c4c4555cbbe92330341c470079addd7af5e94cb..a3a6d0942deba68fc8d7daf3810323d66a3dee56 100644
+--- a/lib/Cloudflare/Workers/WorkerProvider.js
++++ b/lib/Cloudflare/Workers/WorkerProvider.js
+@@ -295,16 +295,14 @@ export const LiveWorkerProvider = () => Provider.effect(Worker, Effect.gen(funct
+     // Toggle the workers.dev subdomain via `POST /subdomain` with
+     // `enabled: true | false`. Mirrors the upstream Alchemy
+     // implementation in `.vendor/alchemy/.../worker-subdomain.ts`.
+-    // When enabling we also set `previewsEnabled: true` so the
+-    // script is reachable both at its stable workers.dev URL and at
+-    // version-preview URLs; on disable we send just `enabled: false`.
+-    const setWorkerSubdomain = Effect.fn(function* (name, enabled) {
++    // Respect explicit preview routing independently of the stable URL.
++    const setWorkerSubdomain = Effect.fn(function* (name, enabled, previewsEnabled) {
+         const { accountId } = yield* yield* CloudflareEnvironment;
+         return yield* workers.createScriptSubdomain({
+             accountId,
+             scriptName: name,
+             enabled,
+-            previewsEnabled: enabled ? true : undefined,
++            previewsEnabled,
+         });
+     });
+     // Convert non-ASCII hostnames (emoji, IDN, etc.) to punycode so the
+@@ -1139,7 +1137,8 @@ export const LiveWorkerProvider = () => Provider.effect(Worker, Effect.gen(funct
+         // explicitly set `url`, leaving the subdomain in whatever state
+         // Cloudflare currently has it (disabled by default, or whatever
+         // a previous failed/external action left it as).
+-        const desiredSubdomainEnabled = news.url !== false;
++        const desiredSubdomainEnabled = news.subdomain?.enabled ?? news.url !== false;
++        const desiredPreviewsEnabled = news.subdomain?.previewsEnabled ?? desiredSubdomainEnabled;
+         const observedSubdomain = yield* workers
+             .getScriptSubdomain({
+             accountId,
+@@ -1150,7 +1149,7 @@ export const LiveWorkerProvider = () => Provider.effect(Worker, Effect.gen(funct
+             previewsEnabled: false,
+         })));
+         if (desiredSubdomainEnabled !== observedSubdomain.enabled ||
+-            desiredSubdomainEnabled !== observedSubdomain.previewsEnabled) {
++            desiredPreviewsEnabled !== observedSubdomain.previewsEnabled) {
+             yield* session.note(`${desiredSubdomainEnabled ? "Enabling" : "Disabling"} workers.dev subdomain...`);
+             // Cloudflare's script registry is eventually consistent — for the
+             // first few hundred ms after `putScript` returns, POST /subdomain
+@@ -1160,7 +1159,7 @@ export const LiveWorkerProvider = () => Provider.effect(Worker, Effect.gen(funct
+             // Retry the subdomain toggle on those transient tags with a short
+             // exponential backoff; same pattern we use elsewhere in this
+             // provider for DO-namespace propagation and for `putScript` itself.
+-            yield* setWorkerSubdomain(name, desiredSubdomainEnabled).pipe(Effect.retry({
++            yield* setWorkerSubdomain(name, desiredSubdomainEnabled, desiredPreviewsEnabled).pipe(Effect.retry({
+                 while: (error) => error._tag === "WorkerNotFound" ||
+                     error._tag === "InternalServerError" ||
+                     error._tag === "UnknownCloudflareError",
+diff --git a/src/Cloudflare/Workers/WorkerProvider.ts b/src/Cloudflare/Workers/WorkerProvider.ts
+index ac4b5508499e089a7a7a4b92fb3a5159a634e49d..1b7e23c394a84bf234a6c64f6235c1b37cf5af12 100644
+--- a/src/Cloudflare/Workers/WorkerProvider.ts
++++ b/src/Cloudflare/Workers/WorkerProvider.ts
+@@ -398,19 +398,18 @@ export const LiveWorkerProvider = () =>
+       // Toggle the workers.dev subdomain via `POST /subdomain` with
+       // `enabled: true | false`. Mirrors the upstream Alchemy
+       // implementation in `.vendor/alchemy/.../worker-subdomain.ts`.
+-      // When enabling we also set `previewsEnabled: true` so the
+-      // script is reachable both at its stable workers.dev URL and at
+-      // version-preview URLs; on disable we send just `enabled: false`.
++      // Respect explicit preview routing independently of the stable URL.
+       const setWorkerSubdomain = Effect.fn(function* (
+         name: string,
+         enabled: boolean,
++        previewsEnabled: boolean,
+       ) {
+         const { accountId } = yield* yield* CloudflareEnvironment;
+         return yield* workers.createScriptSubdomain({
+           accountId,
+           scriptName: name,
+           enabled,
+-          previewsEnabled: enabled ? true : undefined,
++          previewsEnabled,
+         });
+       });
+ 
+@@ -1597,7 +1596,9 @@ export const LiveWorkerProvider = () =>
+         // explicitly set `url`, leaving the subdomain in whatever state
+         // Cloudflare currently has it (disabled by default, or whatever
+         // a previous failed/external action left it as).
+-        const desiredSubdomainEnabled = news.url !== false;
++        const desiredSubdomainEnabled = news.subdomain?.enabled ?? news.url !== false;
++        const desiredPreviewsEnabled =
++          news.subdomain?.previewsEnabled ?? desiredSubdomainEnabled;
+         const observedSubdomain = yield* workers
+           .getScriptSubdomain({
+             accountId,
+@@ -1611,7 +1612,7 @@ export const LiveWorkerProvider = () =>
+           );
+         if (
+           desiredSubdomainEnabled !== observedSubdomain.enabled ||
+-          desiredSubdomainEnabled !== observedSubdomain.previewsEnabled
++          desiredPreviewsEnabled !== observedSubdomain.previewsEnabled
+         ) {
+           yield* session.note(
+             `${desiredSubdomainEnabled ? "Enabling" : "Disabling"} workers.dev subdomain...`,
+@@ -1624,7 +1625,11 @@ export const LiveWorkerProvider = () =>
+           // Retry the subdomain toggle on those transient tags with a short
+           // exponential backoff; same pattern we use elsewhere in this
+           // provider for DO-namespace propagation and for `putScript` itself.
+-          yield* setWorkerSubdomain(name, desiredSubdomainEnabled).pipe(
++          yield* setWorkerSubdomain(
++            name,
++            desiredSubdomainEnabled,
++            desiredPreviewsEnabled,
++          ).pipe(
+             Effect.retry({
+               while: (error) =>
+                 error._tag === "WorkerNotFound" ||
