@@ -425,6 +425,11 @@ export default Alchemy.Stack(
 
     const app = yield* Cloudflare.Worker("open-seo", {
       name: workerName(stage),
+      // The self-host Access application covers the stable hostname only.
+      // Keep version preview URLs off so they cannot expose a second ingress.
+      ...(authMode === "cloudflare_access"
+        ? { subdomain: { enabled: true, previewsEnabled: false } }
+        : {}),
       // Prod serves the real domains; the zone is inferred from the hostname.
       domain: prod ? ["app.openseo.so", "www.app.openseo.so"] : undefined,
       // Prebuilt worker from `vite build` (@cloudflare/vite-plugin). The entry
