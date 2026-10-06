@@ -1,0 +1,38 @@
+{
+  "seoDashboard": "https://open-seo-selfhost.projectxyzv.workers.dev",
+  "geoDashboard": "https://jt-geo-aeo.projectxyzv.workers.dev",
+  "geoSource": "https://github.com/projectxyzv-bot/jt-geo-aeo",
+  "projects": [
+    {
+      "projectSlug": "barcelona-in-context",
+      "geoWorkspaceId": "barcelona-in-context",
+      "domain": "barcelonaincontext.com",
+      "openSeoProjectId": "85dca219-351a-4d3c-ba85-15c993892e60"
+    },
+    {
+      "projectSlug": "vall-de-la-murtra",
+      "geoWorkspaceId": "vall-de-la-murtra",
+      "domain": "valldelamurtra.cat"
+    },
+    {
+      "projectSlug": "ars-pirotecnia",
+      "geoWorkspaceId": "piro-ars",
+      "domain": "piroars.com"
+    },
+    {
+      "projectSlug": "ars-pirotecnia",
+      "geoWorkspaceId": "ars-pirotecnia-b2b",
+      "domain": "arspirotecnia.com"
+    },
+    {
+      "projectSlug": "silo-ai",
+      "geoWorkspaceId": "silo-ai",
+      "domain": null
+    },
+    {
+      "projectSlug": "jt-company-os",
+      "geoWorkspaceId": "jt-company-os",
+      "domain": null
+    }
+  ]
+}

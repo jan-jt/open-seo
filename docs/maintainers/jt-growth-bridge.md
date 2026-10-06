@@ -1,0 +1,11 @@
+# JT growth navigation
+
+The JT self-host build now shows a shared SEO / GEO switch in the authenticated app header. The other dashboard opens in a new tab so the current page and edits stay available. This is a navigation bridge; the applications retain separate databases, login audiences, provider credentials and reports.
+
+`JTGrowthSwitch` only renders in Vite's `selfhost` mode. It reuses the existing project-list query after session confirmation and matches the current route project's exact domain to the GEO workspace. Global pages and unknown domains open GEO's `/portfolio` chooser. It never chooses a remembered SEO project as a cross-app default. Domain matching normalizes `www` and case, without suffix or company-slug matching; the two ARS websites stay separate.
+
+`src/shared/jt-growth-workspaces.json` is a snapshot of Company OS's `config/growth-workspaces.json`. Its public website/workspace pointers have matching snapshots in GEO. For a new website, confirm the real domain and GEO workspace ID, then update all snapshots. For the reverse GEO → SEO link, record the actual OpenSEO project ID after that project exists. Barcelona In Context is currently the only confirmed reverse mapping. No project or result is created by navigation.
+
+Verified on 2026-10-06: routing tests, targeted type-aware lint, TypeScript, self-host build and Alchemy deployment; actual signed-in SEO → GEO → SEO links land on the same website. Remote readback confirms unchanged Worker bindings, databases, Access audiences/allowlists, Managed OAuth and disabled preview ingress. Unauthenticated chooser requests redirect to Access. GEO's live chooser lists the four active websites; Piro Ars B2C opens its own blank-market workspace and its SEO link opens `/projects`.
+
+Deployment uses the existing `selfhost` stage and private `.env.selfhost`. Preserve Google OAuth values and `BETTER_AUTH_SECRET`, and recheck Managed OAuth after Access updates. No new provider calls, schedules, DNS changes or grants are part of this bridge. A company custom-domain cutover needs a selected owned Cloudflare zone and a separately reviewed auth/callback/MCP transition; current worker addresses remain the live entry points.

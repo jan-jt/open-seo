@@ -8,6 +8,7 @@ import {
 } from "@/client/layout/AppShellParts";
 import { GscReEngagementModal } from "@/client/features/gsc/GscReEngagementModal";
 import { Sidebar } from "@/client/components/Sidebar";
+import { JTGrowthSwitch } from "@/client/components/JTGrowthSwitch";
 import { BILLING_ROUTE } from "@/shared/billing";
 import { getSeoApiKeyStatus } from "@/serverFunctions/config";
 import { getLastProjectId } from "@/client/lib/active-project";
@@ -113,6 +114,9 @@ export function AuthenticatedAppLayout({
       />
       <SidebarInset className="min-h-0 overflow-hidden md:!m-0 md:!mt-2 md:!rounded-none md:!rounded-tl-lg md:border-l md:border-t md:border-sidebar-border md:!shadow-none">
         <MobileTopBar />
+        {import.meta.env.MODE === "selfhost" ? (
+          <JTGrowthSwitch projectId={projectId} ready={ready} />
+        ) : null}
         <SeoApiStatusBanners
           shouldShowSeoApiWarning={shouldShowSeoApiWarning}
           seoApiKeyStatusError={seoApiKeyStatusError}
