@@ -19,6 +19,34 @@ describe("parseTaskItems", () => {
 });
 
 describe("assertOk", () => {
+  it.each([
+    { status_code: 40104, status_message: "Please verify your account." },
+    {
+      status_code: 20000,
+      tasks: [
+        {
+          status_code: 40104,
+          status_message: "Please verify your account.",
+          path: ["v3", "serp", "google", "organic", "live", "advanced"],
+          cost: 0,
+          result_count: 0,
+        },
+      ],
+    },
+  ])("classifies verification before billing metadata (%o)", (response) => {
+    try {
+      assertOk(response);
+      throw new Error("expected verification rejection");
+    } catch (error) {
+      expect(error).not.toBeInstanceOf(DataforseoChargedTaskError);
+      expect(error).toMatchObject({
+        code: "DATAFORSEO_VERIFICATION_REQUIRED",
+        message:
+          "DataForSEO account verification required. Open https://app.dataforseo.com/ and complete phone or email verification, then retry.",
+      });
+    }
+  });
+
   it("throws DataforseoChargedTaskError when a charged task fails", () => {
     const task = {
       status_code: 40000,

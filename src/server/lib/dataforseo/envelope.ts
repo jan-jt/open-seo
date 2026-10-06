@@ -2,6 +2,7 @@ import { z } from "zod";
 import { AppError } from "@/server/lib/errors";
 import type { DataforseoErrorClassifier } from "@/server/lib/dataforseo/core";
 import type { ErrorCode } from "@/shared/error-codes";
+import { classifyDataforseoVerificationError } from "@/server/lib/dataforseo/verification";
 
 // ---------------------------------------------------------------------------
 // Billing envelope — the load-bearing seam that carries each call's USD cost
@@ -228,6 +229,11 @@ export function assertOk<T extends DataforseoTaskLike>(
   if (response.status_code !== 20000) {
     const message = response.status_message || "DataForSEO request failed";
     throw (
+      classifyDataforseoVerificationError(
+        response.status_code,
+        message,
+        classifyPath ?? "",
+      ) ??
       classify?.(response.status_code, message, classifyPath ?? "") ??
       new AppError("INTERNAL_ERROR", message)
     );
@@ -243,7 +249,9 @@ export function assertOk<T extends DataforseoTaskLike>(
 
     const message = task.status_message || "DataForSEO task failed";
     const path = classifyPath ?? (task.path ? `/${task.path.join("/")}` : "");
-    const classified = classify?.(task.status_code, message, path);
+    const classified =
+      classifyDataforseoVerificationError(task.status_code, message, path) ??
+      classify?.(task.status_code, message, path);
     if (classified) throw classified;
 
     const detailedMessage = describeInvalidField(message, task);
