@@ -77,7 +77,9 @@ export async function resolveCloudflareAccessContext(
     const jwks = getJwks(teamDomain);
     ({ payload } = await jwtVerify(token, jwks, {
       issuer: teamDomain,
-      audience: policyAud,
+      audience: [policyAud, env.JT_GROWTH_ACCESS_AUD?.trim()].filter(
+        (aud): aud is string => Boolean(aud),
+      ),
     }));
   } catch (error) {
     // The classified AppError carries operator guidance; log the raw jose

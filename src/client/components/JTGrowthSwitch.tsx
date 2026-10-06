@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { projectsQueryOptions } from "@/client/features/projects/projectQueries";
 import { getJtGeoDestination } from "@/client/lib/jt-growth";
+import growth from "@/shared/jt-growth-workspaces.json";
 
 export function JTGrowthSwitch({
   projectId,
@@ -21,7 +22,15 @@ export function JTGrowthSwitch({
       aria-label="JT Growth dashboards"
       className="flex shrink-0 flex-wrap items-center gap-3 border-b border-border bg-card px-4 py-2 text-xs"
     >
-      <span className="font-semibold text-foreground">JT Growth</span>
+      <a
+        href={`${growth.geoDashboard}/portfolio`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="font-semibold text-foreground hover:underline"
+        title="Open your growth portfolio, keeping this dashboard open"
+      >
+        JT Growth ↗
+      </a>
       <span
         aria-current="page"
         className="rounded-md bg-primary px-3 py-1.5 font-medium text-primary-foreground"

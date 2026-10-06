@@ -13,7 +13,9 @@ export function getJtGeoDestination(domain?: string | null) {
     // A missing or invalid website must open the chooser, never another client.
   }
   const match = growth.projects.find((project) => project.domain === hostname);
-  const destination = new URL(match ? "/" : "/portfolio", growth.geoDashboard);
+  const destination = new URL(
+    `${growth.geoDashboard.replace(/\/$/, "")}${match ? "/" : "/portfolio"}`,
+  );
   if (match) destination.searchParams.set("workspace", match.geoWorkspaceId);
   return { href: destination.href, matched: Boolean(match) };
 }

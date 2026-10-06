@@ -1,6 +1,6 @@
 {
-  "seoDashboard": "https://open-seo-selfhost.projectxyzv.workers.dev",
-  "geoDashboard": "https://jt-geo-aeo.projectxyzv.workers.dev",
+  "seoDashboard": "https://jt-growth.projectxyzv.workers.dev",
+  "geoDashboard": "https://jt-growth.projectxyzv.workers.dev/geo",
   "geoSource": "https://github.com/projectxyzv-bot/jt-geo-aeo",
   "projects": [
     {

@@ -13,6 +13,7 @@ describe("JT growth bridge", () => {
       expect(new URL(target.href).searchParams.get("workspace")).toBe(
         workspace,
       );
+      expect(new URL(target.href).pathname).toBe("/geo/");
       expect(target.matched).toBe(true);
     }
   });
@@ -26,7 +27,7 @@ describe("JT growth bridge", () => {
       "javascript:alert(1)",
     ]) {
       const target = getJtGeoDestination(domain);
-      expect(new URL(target.href).pathname).toBe("/portfolio");
+      expect(new URL(target.href).pathname).toBe("/geo/portfolio");
       expect(new URL(target.href).search).toBe("");
       expect(target.matched).toBe(false);
     }

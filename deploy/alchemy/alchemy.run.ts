@@ -294,6 +294,8 @@ const dataEnv = {
   // Alchemy reconciles worker vars on every deploy, so the telemetry opt-out
   // must live in the env file — a dashboard-set var would be wiped.
   OPENSEO_TELEMETRY_DISABLED: optionalVar("OPENSEO_TELEMETRY_DISABLED"),
+  // Additional exact audience for JT's authenticated shared-host gateway.
+  JT_GROWTH_ACCESS_AUD: optionalVar("JT_GROWTH_ACCESS_AUD"),
 };
 
 export default Alchemy.Stack(
