@@ -86,6 +86,7 @@ import {
   deleteSiteAuditTool,
   listSiteAuditsTool,
 } from "@/server/mcp/tools/site-audit-cleanup-tools";
+import { getDataforseoUsageTool } from "@/server/mcp/tools/dataforseo-usage";
 import { whoamiTool } from "@/server/mcp/tools/whoami";
 
 type ToolSchema = z.ZodType | z.ZodRawShape;
@@ -179,6 +180,7 @@ export function createOpenSeoMcpServer(authProps: McpProps) {
   ) => registerOpenSeoTool(server, tool, authProps);
 
   register(whoamiTool);
+  register(getDataforseoUsageTool);
   register(listProjectsTool);
   register(createProjectTool);
   register(getProjectContextTool);
